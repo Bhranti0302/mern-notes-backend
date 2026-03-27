@@ -54,6 +54,8 @@ userSchema.pre("save",async function(next){
     next();
 
     this.passwordChangedAt=Date.now();
+    next();
+
 })
 
 userSchema.methods.comparePassword=async function(enteredPassword){
