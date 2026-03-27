@@ -27,7 +27,8 @@ const noteSchema = new mongoose.Schema(
     // 🏷️ Tags (for filtering/search)
     tags: [
       {
-        type: String,
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Tag",
         trim: true,
       },
     ],
