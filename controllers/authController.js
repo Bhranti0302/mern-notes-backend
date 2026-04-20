@@ -1,8 +1,52 @@
 const User = require("../models/User");
-const generateToken = require("../utils/generateToken");
+const {generateAccessToken, generateRefreshToken} = require("../utils/generateToken");
 const cookieOptions = require("../utils/cookieOptions");
 
 // ================= SIGNUP =================
+exports.refreshToken=(req,res)=>{
+
+  // 1. Get refresh token from cookie
+  const token=req.cookies.refreshToken;
+
+  // 2. Check if token is provided
+  if(!token){
+    return res.status(401).json({
+      success: false,
+      message: "No refresh token provided",
+    });
+  }
+
+  try{
+    // 3. Verify token
+    const decoded=JsonWebTokenError.verify(token, process.env.JWT_REFRESH_SECRET);
+
+    // 4. Get user from the token
+    const user = await User.findById(decoded.id).select("-password");
+
+    // 5. Check if user exists
+    if(!user || user.refreshToken !== token){
+      return res.status(401).json({
+        success: false,
+        message: "Invalid refresh token",
+      })
+    }
+
+    // 6. Generate new access token
+    const newAccessToken=generateAccessToken(user._id);
+
+    // 7. Send new access token in cookie
+    res.cookie("token", newAccessToken, cookieOptions).status(200).json({
+      success: true,
+      message: "New access token generated",
+    });
+  }catch(err){
+    return res.status(401).json({
+      success: false,
+      message: "Invalid refresh token",
+    });
+  }
+}
+
 exports.signup = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -24,11 +68,13 @@ exports.signup = async (req, res) => {
     });
 
     // 3. Generate token
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     // 4. Send response (cookie only)
     res
-      .cookie("token", token, cookieOptions)
+      .cookie("token", accessToken, cookieOptions)
+      .cookie("refreshToken", refreshToken, cookieOptions)
       .status(201)
       .json({
         success: true,
@@ -84,10 +130,13 @@ exports.login = async (req, res) => {
     }
 
     // 4. Generate token
-    const token = generateToken(user._id);
+    const accessToken = generateAccessToken(user._id);
+    const refreshToken = generateRefreshToken(user._id);
 
     // 5. Send response (cookie only)
-    res.cookie("token", token, cookieOptions).status(200).json({
+    res
+    .cookie("token", accessToken, cookieOptions)
+    .cookie("refreshToken", refreshToken, cookieOptions).status(200).json({
       success: true,
       message: "User logged in successfully",
     });
@@ -102,14 +151,24 @@ exports.login = async (req, res) => {
 
 // ================= LOGOUT =================
 exports.logout = (req, res) => {
-  res
-    .cookie("token", "", {
-      httpOnly: true,
-      expires: new Date(0),
-    })
-    .status(200)
-    .json({
-      success: true,
-      message: "User logged out successfully",
+  const token = req.cookies.token;
+
+  if(token){
+    const user = await User.findOne({ refreshToken: token });
+
+    if(user){
+      user.refreshToken = null;
+      await user.save();
+    }
+
+    req.session.destroy(() => {
+      res
+      .clearCookie("token", cookieOptions)
+      .clearCookie("refreshToken", cookieOptions).status(200).json({
+        success: true,
+        message: "User logged out successfully",
+      });
     });
+
+  }
 };
