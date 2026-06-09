@@ -1,46 +1,50 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 
-const UserSchema = new mongoose.Schema(
-    {
-        name: {
-            type: String,
-            required: [true, 'Please add a name'],
-            trim: true,
-            minlength: 3
-        },
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Please add a name"],
+      trim: true,
+      minlength: 3,
+    },
 
-        email: {
-            type: String,
-            required: [true, 'Please add an email'],
-            unique: true,
-            match: [/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/, 'Please add a valid email']
-        },
+    email: {
+      type: String,
+      required: [true, "Please add an email"],
+      unique: true,
+      match: [
+        /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/,
+        "Please add a valid email",
+      ],
+    },
 
-        password: {
-            type: String,
-            required: [true, 'Please add a password'],
-            minlength: 6,
-            select: false
-        },
+    password: {
+      type: String,
+      required: [true, "Please add a password"],
+      minlength: 6,
+      select: false,
+    },
 
-        role: {
-            type: String,
-            enum: ['user', 'admin'],
-            default: 'user',
-        },
+    role: {
+      type: String,
+      enum: ["user", "admin"],
+      default: "user",
+    },
 
-        status: {
-            type: String,
-            enum: ["online", "offline"],
-            default: "offline"
-        },
+    status: {
+      type: String,
+      enum: ["online", "offline"],
+      default: "offline",
+    },
 
-        lastSeen: {
-            type: Date,
-        }
-    },{timestamps: true}
-)
+    lastSeen: {
+      type: Date,
+    },
+  },
+  { timestamps: true },
+);
 
 userSchema.methods.comparePassword = async function (enteredPassword) {
     return await bcrypt.compare(enteredPassword, this.password);
@@ -53,4 +57,4 @@ userSchema.pre('save', async function (next) {
     this.password = await bcrypt.hash(this.password, salt);
 });
 
-module.exports = mongoose.model('User', UserSchema);
+module.exports = mongoose.model('User', userSchema);
