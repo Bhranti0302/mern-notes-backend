@@ -69,3 +69,24 @@ exports.getSingleNote = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 };
+
+// ============= Update Note ==============
+exports.updateNote = async (req, res) => {
+    try {
+        const note = await Note.findByIdAndUpdate(req.params.id, req.body, {
+            new: true,
+            runValidators: true,
+        })
+
+        if (!note) {
+            return res.status(404).json({ message: "Note not found" });
+        }
+
+        res.status(200).json({
+            success: true,
+            data: note
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
