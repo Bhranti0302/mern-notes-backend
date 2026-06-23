@@ -86,3 +86,28 @@ exports.updateCollection = async (req, res) => {
         res.status(500).json({ message: error.message });
     }
 }
+
+// ================= Delete Collection ================ //
+exports.deleteCollection = async (req, res) => {
+    try {
+        const collection = await Collection.findByIdAndDelete({
+            _id: req.params.id,
+            user: req.user.id
+        });
+
+        if (!collection) {
+            return res.status(404).json({ message: "Collection not found" });
+        }
+        await Notes.updateMany(
+            { collection: req.params.id, },
+            {$set: {collection: null}
+        });
+        res.status(200).json({
+            success: true,
+            message: "Collection deleted successfully",
+            data: {}
+        });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
