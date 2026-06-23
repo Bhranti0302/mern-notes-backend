@@ -58,3 +58,31 @@ exports.getCollectionById = async (req, res) => {
   }
 };
 
+// ================= Update Collection ================ //
+exports.updateCollection = async (req, res) => {
+    try {
+        const collection = await Collection.findByIdAndUpdate({
+            _id: req.params.id,
+            user: req.user.id,
+            
+        },
+        req.body,
+        {
+            new: true,
+            runValidators: true,
+            })
+        
+        
+        if (!collection) {
+            return res.status(404).json({ message: "Collection not found" });
+        }
+        
+        res.status(200).json({
+            success: true,
+            data: collection,
+        });
+        
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
