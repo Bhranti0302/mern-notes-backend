@@ -20,3 +20,20 @@ exports.createCollection = async (req, res) => {
     }
 }
     
+// ================= Get Collections ================ //
+exports.getCollections = async (req, res) => { 
+    try {
+        const collection = await Collection.find({
+            user: req.user.id,
+        }).sort("createdAt : -1");
+
+        res.status(200).json({
+            success: true,
+            count: collection.length,
+            data: collection
+        })
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+}
+    
