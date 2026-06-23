@@ -23,17 +23,38 @@ exports.createCollection = async (req, res) => {
 // ================= Get Collections ================ //
 exports.getCollections = async (req, res) => { 
     try {
-        const collection = await Collection.find({
+        const collections = await Collection.find({
             user: req.user.id,
         }).sort("createdAt : -1");
 
         res.status(200).json({
             success: true,
-            count: collection.length,
-            data: collection
+            count: collections.length,
+            data: collections
         })
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 }
     
+// ================= Get single Collection ================ //
+exports.getCollectionById = async (req, res) => {
+  try {
+    const collection = await Collection.findOne({
+      _id: req.params.id,
+      user: req.user._id,
+    });
+
+    if (!collection) {
+      return res.status(404).json({ message: "Collection not found" });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: collection,
+    });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
