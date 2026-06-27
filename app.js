@@ -6,13 +6,12 @@ const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const collectionRoutes = require("./routes/collectionRoutes");
 
-const errorHandler = require("./middleware/errorHandler");
+const {errorHandler, notFound} = require("./middleware/errorHandler");
 
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
-app.use(errorHandler)
 
 app.use(
   cors({
@@ -24,5 +23,8 @@ app.use(
 app.use("/api/auth", authRoutes);
 app.use("/api/notes", noteRoutes);
 app.use("/api/collections", collectionRoutes);
+
+app.use(notFound)
+app.use(errorHandler)
 
 module.exports = app;
