@@ -6,10 +6,13 @@ const authRoutes = require("./routes/authRoutes");
 const noteRoutes = require("./routes/noteRoutes");
 const collectionRoutes = require("./routes/collectionRoutes");
 
+const errorHandler = require("./middleware/errorHandler");
+
 const app = express();
 
 app.use(express.json());
 app.use(cookieParser());
+app.use(errorHandler)
 
 app.use(
   cors({
