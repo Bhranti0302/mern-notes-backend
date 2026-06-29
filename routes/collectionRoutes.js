@@ -9,7 +9,7 @@ const {
   deleteCollection,
 } = require("../controllers/collectionController");
 
-const { protect } = require("../middleware/authMiddleware");
+const protect = require("../middleware/authMiddleware");
 
 // Protect all routes
 router.use(protect);
