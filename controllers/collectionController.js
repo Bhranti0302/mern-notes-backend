@@ -25,7 +25,7 @@ exports.getCollections = async (req, res) => {
     try {
         const collections = await Collection.find({
             user: req.user.id,
-        }).sort("createdAt : -1");
+        }).sort({ createdAt: -1 });
 
         res.status(200).json({
             success: true,
