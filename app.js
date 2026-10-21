@@ -2,6 +2,8 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 
+const authRoutes = require("./routes/authRoutes");
+
 const app = express();
 
 // Middleware
@@ -17,6 +19,9 @@ app.get("/", (req, res) => {
   });
 });
 
+// Routes
+app.use("/api/auth", authRoutes);
+
 // Handle unknown routes
 app.use((req, res) => {
   res.status(400).json({
@@ -24,5 +29,7 @@ app.use((req, res) => {
     message: "Route not found",
   });
 });
+
+
 
 module.exports = app;
