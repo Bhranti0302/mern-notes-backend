@@ -65,4 +65,11 @@ userSchema.methods.matchPassword = async function (password) {
   return await bcrypt.compare(password, this.password);
 };
 
+userSchema.pre("findOneAndDelete", async function () {
+  const user = await this.model.findOne(this.getFilter());
+  if (user) {
+    await noteSchema.deleteMany({ user: user._id });
+  }
+});
+
 module.exports = mongoose.model("User", userSchema);
