@@ -4,6 +4,7 @@ const cors = require("cors");
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
+const noteRoutes = require("./routes/noteRoutes")
 
 const app = express();
 
@@ -30,6 +31,7 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+app.use("/api/note",noteRoutes)
 
 app.delete("/test-delete", (req, res) => {
   res.status(200).json({
