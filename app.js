@@ -7,6 +7,13 @@ const userRoutes = require("./routes/userRoutes");
 
 const app = express();
 
+console.log("App.js loaded");
+
+app.use((req, res, next) => {
+  console.log("Incoming request:", req.method, req.originalUrl);
+  next();
+});
+
 // Middleware
 app.use(express.json());
 app.use(cors());
@@ -23,6 +30,13 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
+
+app.delete("/test-delete", (req, res) => {
+  res.status(200).json({
+    success: true,
+    message: "DELETE route works",
+  });
+});
 
 // Handle unknown routes
 app.use((req, res) => {
