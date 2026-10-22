@@ -2,48 +2,40 @@ const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 const asyncHandler = require("../utils/asyncHandler");
 
-const protect = asyncHandler(
-  asyncHandler(async (req, res, next) => {
-      let token;
-      
-      // console.log(req.headers);
+const protect = asyncHandler(async (req, res, next) => {
+  let token;
 
-    if (req.cookies.token) {
-      token = req.cookies.token;
-    } else if (req.headers.authorization?.startsWith("Bearer ")) {
-      token = req.headers.authorization.split(" ")[1];
-    }
+  if (req.cookies?.token) {
+    token = req.cookies.token;
+  } else if (req.headers.authorization?.startsWith("Bearer ")) {
+    token = req.headers.authorization.split(" ")[1];
+  }
 
-    // 2. Check token is their or not
-    if (!token) {
+  if (!token) {
+    return res.status(401).json({
+      message: "Not authorized, no token",
+    });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    const user = await User.findById(decoded.userId).select("-password");
+
+    if (!user) {
       return res.status(401).json({
-        message: "Not authorized, no token",
+        message: "User not found for this token",
       });
     }
 
-    try {
-      // 3. Verify
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = user;
+    next();
 
-      // 4. Get User
-      const user = await User.findById(decoded.userId).select("-password");
-
-      if (!user) {
-        return res.status(401).json({
-          message: "Not authorized, token failed",
-        });
-      }
-
-      // 5. Attach user
-      req.user = user;
-
-      next();
-    } catch (error) {
-      return res.status(401).json({
-        message: "Not authorized, token failed",
-      });
-    }
-  }),
-);
+  } catch (error) {
+    return res.status(401).json({
+      message: "Invalid token",
+    });
+  }
+});
 
 module.exports = { protect };
