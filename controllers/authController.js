@@ -25,13 +25,13 @@ const register = asyncHandler(async (req, res) => {
   });
 
   // 3. Generate Token
-  const token = generateToken(user._id);
+  const token = await generateToken(user._id);
 
   // 4. Send Cookie
   res.cookie("token", token, cookieOptions);
 
   // 5. Send Response
-  res.status(201).json({
+  return res.status(201).json({
     success: true,
     message: "User registered successfully",
     user: {
@@ -67,14 +67,14 @@ const login = asyncHandler(async (req, res) => {
     });
   }
 
-  // 3. Generate token
-  const token = generateToken(user._id);
+  // 3. Generate Token
+  const token = await generateToken(user._id);
 
-  // 4. Send cookie
+  // 4. Send Cookie
   res.cookie("token", token, cookieOptions);
 
-  // 5. Send response
-  res.status(200).json({
+  // 5. Send Response
+  return res.status(200).json({
     success: true,
     message: "Login successful",
     user: {
@@ -86,28 +86,30 @@ const login = asyncHandler(async (req, res) => {
   });
 });
 
-
 // ================= Logout ==================
 const logout = asyncHandler(async (req, res) => {
-    // 1. Check if user is logged in
-    const token = req.cookies.token;
+  // 1. Check if cookie exists
+  const token = req.cookies?.token;
 
-    if (!token) {
-        return res.status(401).json({
-            message: "Not logged in",
-        });
-    }
-
-    // 2. Clear Cookies
-    res.clearCookie("token");
-
-    // 3. Send response
-    res.status(200).json({
-        message: "User logged out successfully",
+  if (!token) {
+    return res.status(401).json({
+      success: false,
+      message: "Not logged in",
     });
+  }
+
+  // 2. Clear Cookie
+  res.clearCookie("token", cookieOptions);
+
+  // 3. Send Response
+  return res.status(200).json({
+    success: true,
+    message: "User logged out successfully",
+  });
 });
 
-
 module.exports = {
-    register,login,logout
-}
+  register,
+  login,
+  logout,
+};
