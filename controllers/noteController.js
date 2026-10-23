@@ -39,6 +39,7 @@ const createNote = asyncHandler(async (req, res) => {
   });
 });
 //================ Get my note ==================
+//================ Get my notes with search and filters ==================
 const getMyNote = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -49,9 +50,44 @@ const getMyNote = asyncHandler(async (req, res) => {
     });
   }
 
-  const notes = await Note.find({ user: req.user._id });
+  const { q, category, tag, isPinned } = req.query;
 
-  res.status(200).json({
+  // Filter notes belonging to the logged-in user
+  const filter = {
+    user: req.user._id,
+  };
+
+  // Search by keyword
+  if (q) {
+    filter.$or = [
+      { title: { $regex: q, $options: "i" } },
+      { content: { $regex: q, $options: "i" } },
+      { category: { $regex: q, $options: "i" } },
+      { tags: { $regex: q, $options: "i" } },
+    ];
+  }
+
+  // Filter by category
+  if (category) {
+    filter.category = category;
+  }
+
+  // Filter by tag
+  if (tag) {
+    filter.tags = { $in: [tag] };
+  }
+
+  // Filter by pinned status
+  if (isPinned === "true") {
+    filter.isPinned = true;
+  } else if (isPinned === "false") {
+    filter.isPinned = false;
+  }
+
+  // Find notes and show newest first
+  const notes = await Note.find(filter).sort({ createdAt: -1 });
+
+  return res.status(200).json({
     success: true,
     results: notes.length,
     notes,
@@ -71,27 +107,45 @@ const getAllNotes = asyncHandler(async (req, res) => {
 //================ Update note ==================
 // For both logged-In User
 const updateNote = asyncHandler(async (req, res) => {
-  const { title, content, tags, category } = req.body;
+  const { title, content, tags, category, isPinned } = req.body;
 
   const filter = { _id: req.params.id };
 
   // Regular users can update only their own notes.
+  // Admins can update any note.
   if (req.user.role !== "admin") {
     filter.user = req.user._id;
   }
 
-  const note = await Note.findByIdAndUpdate(
-    filter,
-    { title, content, tags, category }, {
-      returnDocument: "after",
-      runValidators:true,
+  // Build an update object containing only supplied fields.
+  const updates = {};
+
+  if (title !== undefined) updates.title = title;
+  if (content !== undefined) updates.content = content;
+  if (tags !== undefined) updates.tags = tags;
+  if (category !== undefined) updates.category = category;
+
+  // Support pinning and unpinning.
+  if (isPinned !== undefined) {
+    if (typeof isPinned !== "boolean") {
+      return res.status(400).json({
+        success: false,
+        message: "isPinned must be a boolean",
+      });
     }
-  )
+
+    updates.isPinned = isPinned;
+  }
+
+  const note = await Note.findOneAndUpdate(filter, updates, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!note) {
     return res.status(404).json({
       success: false,
-      message: "Note not found or you are not authorized to update",
+      message: "Note not found or you are not authorized to update it",
     });
   }
 
@@ -104,9 +158,12 @@ const updateNote = asyncHandler(async (req, res) => {
       content: note.content,
       category: note.category,
       tags: note.tags,
+      isPinned: note.isPinned,
+      createdAt: note.createdAt,
+      updatedAt: note.updatedAt,
     },
   });
-})
+});
 
 //================ Delete note ==================
 const deleteNote = asyncHandler(async (req, res) => {
@@ -133,10 +190,36 @@ const deleteNote = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { createNote, getMyNote, getAllNotes,updateNote,deleteNote };
+const togglePin = asyncHandler(async (req, res) => {
+  const note = await Note.findOne({
+    _id: req.params.id,
+    user: req.user._id,
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message: "Note not found",
+    });
+  }
+
+  note.isPinned = !note.isPinned;
+  await note.save();
+
+  res.status(200).json({
+    success: true,
+    message: "Pin status updated",
+    note,
+  });
+});
+
+module.exports = {
+  createNote, getMyNote, getAllNotes, updateNote, deleteNote, togglePin
+ };
 
 
 // only for logged user
+
 // const updateNote = asyncHandler(async (req, res) => {
 //   const { title, content, tags, category } = req.body;
 
@@ -216,3 +299,7 @@ module.exports = { createNote, getMyNote, getAllNotes,updateNote,deleteNote };
 //     },
 //   });
 // });
+
+
+//================ Get my notes with search ==================
+//================ Get my notes with search ==================
