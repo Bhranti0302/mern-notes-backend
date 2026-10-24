@@ -6,7 +6,8 @@ const errorMiddleware = require("./middlewares/errorMiddleware")
 
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
-const noteRoutes = require("./routes/noteRoutes")
+const noteRoutes = require("./routes/noteRoutes");
+const aiRoutes = require("./routes/aiRoutes")
 
 const app = express();
 
@@ -33,7 +34,8 @@ app.get("/", (req, res) => {
 // Routes
 app.use("/api/auth", authRoutes);
 app.use("/api/user", userRoutes);
-app.use("/api/note",noteRoutes)
+app.use("/api/note", noteRoutes);
+app.use("/api/ai", aiRoutes);
 
 app.delete("/test-delete", (req, res) => {
   res.status(200).json({
