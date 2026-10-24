@@ -1,11 +1,6 @@
-const OpenAI = require("openai");
 const asyncHandler = require("../utils/asyncHandler");
+const Note = require("../models/Note")
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-// AI suggestions for a new note
 const suggestNote = asyncHandler(async (req, res) => {
   const { title, content } = req.body;
 
@@ -16,33 +11,59 @@ const suggestNote = asyncHandler(async (req, res) => {
     });
   }
 
-  const response = await openai.responses.create({
-    model: "gpt-5.5",
-    instructions: `You are an assistant for a notes app.
-      Suggest a category from: Remember, Learning, Food Recipe,
-      Work, Ideas, Personal, Other.
-      Suggest 3 to 5 short relevant tags.
-      Suggest a clearer version of the note content.
-      Return valid JSON with keys: category, tags, improvedContent.
-      Do not invent facts not present in the note.`,
-    input: `Title: ${title}\nContent: ${content}`,
-  });
+  const text = `${title} ${content}`.toLowerCase();
 
-  let suggestions;
+  let category = "Other";
 
-  try {
-    suggestions = JSON.parse(response.output_text);
-  } catch {
-    return res.status(502).json({
-      success: false,
-      message: "AI returned an invalid response. Please try again.",
-    });
+  if (text.includes("learn") || text.includes("mongodb")) {
+    category = "Learning";
+  } else if (text.includes("recipe") || text.includes("cook")) {
+    category = "Food Recipe";
+  } else if (text.includes("work") || text.includes("meeting")) {
+    category = "Work";
+  } else if (text.includes("idea") || text.includes("project")) {
+    category = "Ideas";
   }
+
+  const suggestions = {
+    category,
+    tags: ["Notes", "Ideas", "Review"],
+    improvedContent: content.trim(),
+  };
 
   return res.status(200).json({
     success: true,
+    message: "Mock AI suggestions generated successfully",
     suggestions,
   });
 });
 
-module.exports = { suggestNote };
+// Summarize a note
+const summarizeNote = asyncHandler(async (req, res) => {
+  const Note = require("../models/Note");
+
+  const note = await Note.findOne({
+    _id: req.params.noteId,
+    user: req.user._id,
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message: "Note not found",
+    });
+  }
+
+  // Temporary mock summary
+  const words = note.content.trim().split(/\s+/);
+  const summary = words.slice(0, 20).join(" ");
+
+  return res.status(200).json({
+    success: true,
+    message: "Note summarized successfully (mock)",
+    summary:
+      words.length > 20 ? `${summary}...` : summary,
+  });
+});
+
+module.exports = { suggestNote,summarizeNote };
