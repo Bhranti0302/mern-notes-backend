@@ -18,6 +18,8 @@ const {
   updateNoteValidator,
 } = require("../validators/noteValidator");
 
+const { validateNoteId } = require("../validators/isValidator");
+
 const router = express.Router();
 
 // Create note — logged-in users
@@ -34,15 +36,30 @@ router.patch(
   "/:id",
   protect,
   restrictTo("user", "admin"),
+  validateNoteId,
   updateNoteValidator,
   validateRequest,
   updateNote,
 );
 
 // Delete note — users and admins
-router.delete("/:id", protect, restrictTo("user", "admin"), deleteNote);
+router.delete(
+  "/:id",
+  protect,
+  restrictTo("user", "admin"),
+  validateNoteId,
+  validateRequest,
+  deleteNote,
+);
 
 // Pin or unpin note — users
-router.patch("/:id/pin", protect, restrictTo("user"), togglePin);
+router.patch(
+  "/:id/pin",
+  protect,
+  restrictTo("user"),
+  validateNoteId,
+  validateRequest,
+  togglePin,
+);
 
 module.exports = router;
