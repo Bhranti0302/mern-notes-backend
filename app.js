@@ -66,3 +66,15 @@ app.use(errorMiddleware);
 
 
 module.exports = app;
+
+
+
+// ✅ Centralized error handling
+// ✅ Helmet security headers
+// ✅ Authentication rate limiting
+// ✅ CORS configuration
+// ✅ Environment variable validation
+// ✅ Secure JWT cookie settings
+// ✅ NoSQL injection protection
+// ✅ Authentication request validation
+// ✅ Note creation and update validation
