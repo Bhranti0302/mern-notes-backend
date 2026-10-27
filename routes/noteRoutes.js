@@ -2,6 +2,7 @@ const express = require("express");
 
 const { protect } = require("../middlewares/authMiddleware");
 const { restrictTo } = require("../middlewares/roleMiddleware");
+const validateRequest = require("../middlewares/validateRequest");
 
 const {
   createNote,
@@ -12,19 +13,36 @@ const {
   togglePin,
 } = require("../controllers/noteController");
 
+const {
+  createNoteValidator,
+  updateNoteValidator,
+} = require("../validators/noteValidator");
+
 const router = express.Router();
 
-// For logged-In user
-router.post("/", protect, restrictTo("user"), createNote);
+// Create note — logged-in users
+router.post("/", protect, createNoteValidator, validateRequest, createNote);
+
+// Get my notes — users
 router.get("/", protect, restrictTo("user"), getMyNote);
 
-// For admin
+// Get all notes — admins
 router.get("/getNotes", protect, restrictTo("admin"), getAllNotes);
 
-// For both
-router.patch("/:id", protect, restrictTo("user", "admin"), updateNote);
+// Update note — users and admins
+router.patch(
+  "/:id",
+  protect,
+  restrictTo("user", "admin"),
+  updateNoteValidator,
+  validateRequest,
+  updateNote,
+);
+
+// Delete note — users and admins
 router.delete("/:id", protect, restrictTo("user", "admin"), deleteNote);
 
+// Pin or unpin note — users
 router.patch("/:id/pin", protect, restrictTo("user"), togglePin);
 
 module.exports = router;
