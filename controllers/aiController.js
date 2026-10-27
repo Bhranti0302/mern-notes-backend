@@ -66,4 +66,58 @@ const summarizeNote = asyncHandler(async (req, res) => {
   });
 });
 
-module.exports = { suggestNote,summarizeNote };
+// Improve note writing
+const improveNote = asyncHandler(async (req, res) => {
+  const note = await Note.findOne({
+    _id: req.params.noteId,
+    user: req.user._id,
+  });
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message:"Note not found"
+    })
+  }
+
+  // Temporary mock: clean up extra whitespace
+  const improvedContent = note.content
+    .trim()
+    .replace(/\s+/g, " ");
+  
+  return res.status(200).json({
+    success: true,
+    message: "Note writing improved successfully (mock)",
+    improvedContent,
+  });
+})
+
+// Extract action items from a note
+const extractActionItems = asyncHandler(async (req, res) => {
+  const note = await Note.findOne({
+    _id: req.params.noteId,
+    user: req.user._id,
+  })
+
+  if (!note) {
+    return res.status(404).json({
+      success: false,
+      message: "Note not found"
+    })
+  }
+
+  // Temporary mock: split content into linnes
+  const actionItems = note.content
+    .split(/[.\n]/)
+    .map((item) => item.trim())
+    .filter((item) => /^(todo|task|action|need to|must|should|learn|understood|revise|remember to)/i.test(item))
+  
+  return res.status(200).json({
+    success: true,
+    message: "Action items extracted successfully (mock)",actionItems,
+  })
+})
+
+module.exports = { suggestNote,summarizeNote,improveNote,extractActionItems };
+
+
