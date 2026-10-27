@@ -2,6 +2,7 @@ const express = require("express");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
+const mongoSanitize = require("@exortek/express-mongo-sanitize");
 
 const errorMiddleware = require("./middlewares/errorMiddleware")
 
@@ -21,6 +22,7 @@ app.use((req, res, next) => {
 
 // Middleware
 app.use(express.json());
+app.use(mongoSanitize());
 app.use(
   cors({
     origin: "http://localhost:5173",
