@@ -6,6 +6,9 @@ const mongoSanitize = require("@exortek/express-mongo-sanitize");
 
 const errorMiddleware = require("./middlewares/errorMiddleware")
 
+const swaggerUi = require("swagger-ui-express");
+const swaggerSpec = require("./config/swagger");
+
 const authRoutes = require("./routes/authRoutes");
 const userRoutes = require("./routes/userRoutes");
 const noteRoutes = require("./routes/noteRoutes");
@@ -46,12 +49,7 @@ app.use("/api/user", userRoutes);
 app.use("/api/note", noteRoutes);
 app.use("/api/ai", aiRoutes);
 
-app.delete("/test-delete", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "DELETE route works",
-  });
-});
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
 // Handle unknown routes
 app.use((req, res, next) => {
