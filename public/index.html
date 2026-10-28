@@ -1,0 +1,1020 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#0b1020" />
+    <meta
+      name="description"
+      content="Explore the MERN Notes App API: secure note management, JWT authentication, admin tools, and Gemini AI-powered note assistance."
+    />
+    <title>MERN Notes API — Build smarter notes</title>
+    <style>
+      :root {
+        --bg: #080d1b;
+        --panel: rgba(18, 27, 49, 0.78);
+        --panel-solid: #111a2f;
+        --text: #f3f6ff;
+        --muted: #a7b2cc;
+        --line: rgba(166, 185, 225, 0.16);
+        --blue: #7c9cff;
+        --cyan: #67e8f9;
+        --violet: #b49aff;
+        --green: #86efac;
+        --radius: 22px;
+        --shadow: 0 24px 70px rgba(0, 0, 0, 0.28);
+      }
+      * {
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 90px;
+      }
+      body {
+        margin: 0;
+        color: var(--text);
+        background:
+          radial-gradient(
+            ellipse at 12% 5%,
+            rgba(73, 91, 190, 0.23),
+            transparent 38%
+          ),
+          radial-gradient(
+            ellipse at 88% 20%,
+            rgba(34, 211, 238, 0.11),
+            transparent 30%
+          ),
+          var(--bg);
+        font-family:
+          Inter,
+          ui-sans-serif,
+          system-ui,
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        line-height: 1.6;
+        overflow-x: hidden;
+      }
+      a {
+        color: inherit;
+      }
+      .container {
+        width: min(1120px, calc(100% - 40px));
+        margin-inline: auto;
+      }
+      .nav-wrap {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        backdrop-filter: blur(18px);
+        background: rgba(8, 13, 27, 0.78);
+        border-bottom: 1px solid var(--line);
+      }
+      nav {
+        min-height: 74px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 24px;
+      }
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 11px;
+        text-decoration: none;
+        font-weight: 750;
+        letter-spacing: -0.03em;
+      }
+      .brand-icon {
+        width: 38px;
+        height: 38px;
+        display: grid;
+        place-items: center;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #7898ff, #7b5ce1);
+        box-shadow: 0 8px 28px rgba(111, 127, 255, 0.28);
+        font-size: 20px;
+      }
+      .brand small {
+        display: block;
+        color: var(--muted);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+      .nav-links {
+        display: flex;
+        align-items: center;
+        gap: 24px;
+      }
+      .nav-links a {
+        text-decoration: none;
+        color: var(--muted);
+        font-size: 13px;
+        transition: color 0.2s;
+      }
+      .nav-links a:hover {
+        color: var(--text);
+      }
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 9px;
+        padding: 12px 17px;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        text-decoration: none;
+        font-weight: 700;
+        font-size: 13px;
+        transition:
+          transform 0.2s,
+          border-color 0.2s,
+          background 0.2s;
+      }
+      .btn:hover {
+        transform: translateY(-2px);
+      }
+      .btn-primary {
+        color: #08101e;
+        background: linear-gradient(135deg, var(--cyan), #a8bbff);
+        box-shadow: 0 10px 30px rgba(103, 232, 249, 0.14);
+      }
+      .btn-secondary {
+        color: var(--text);
+        border-color: var(--line);
+        background: rgba(255, 255, 255, 0.035);
+      }
+      .hero {
+        padding: 94px 0 78px;
+        position: relative;
+      }
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.1fr 0.9fr;
+        align-items: center;
+        gap: 54px;
+      }
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        padding: 7px 11px;
+        border: 1px solid rgba(134, 239, 172, 0.2);
+        background: rgba(134, 239, 172, 0.06);
+        border-radius: 999px;
+        color: #b6f7ca;
+        font-size: 12px;
+        font-weight: 700;
+      }
+      .pulse {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        background: var(--green);
+        box-shadow: 0 0 0 5px rgba(134, 239, 172, 0.1);
+      }
+      h1 {
+        margin: 22px 0 20px;
+        font-size: clamp(42px, 5.5vw, 68px);
+        line-height: 1.04;
+        letter-spacing: -0.065em;
+      }
+      .gradient-text {
+        background: linear-gradient(
+          100deg,
+          #f8fbff 10%,
+          #8fe9fa 53%,
+          #b8a5ff 90%
+        );
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+      }
+      .hero-copy {
+        max-width: 570px;
+        color: var(--muted);
+        font-size: 17px;
+      }
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 29px;
+      }
+      .micro-note {
+        margin-top: 17px;
+        color: #8492af;
+        font-size: 12px;
+      }
+      .api-window {
+        position: relative;
+        padding: 19px;
+        border: 1px solid rgba(161, 180, 231, 0.2);
+        border-radius: 24px;
+        background: linear-gradient(
+          145deg,
+          rgba(24, 35, 62, 0.94),
+          rgba(12, 19, 37, 0.94)
+        );
+        box-shadow: var(--shadow);
+        transform: perspective(900px) rotateY(-4deg) rotateX(2deg);
+        animation: float 6s ease-in-out infinite;
+      }
+      .window-top {
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        border-bottom: 1px solid var(--line);
+        padding-bottom: 15px;
+        margin-bottom: 18px;
+      }
+      .dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 50%;
+        background: #60708d;
+      }
+      .window-label {
+        margin-left: auto;
+        color: #8f9db9;
+        font-size: 11px;
+      }
+      .request {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 11px 12px;
+        border-radius: 10px;
+        background: rgba(255, 255, 255, 0.04);
+        font:
+          12px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        color: #c8d4ef;
+      }
+      .method {
+        color: #86efac;
+        font-weight: 800;
+      }
+      .endpoint {
+        color: #c2b3ff;
+      }
+      .code {
+        margin: 13px 0 0;
+        padding: 17px;
+        border-radius: 13px;
+        background: #080e1c;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        overflow: auto;
+        font:
+          12px/1.85 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        color: #b7c5e2;
+      }
+      .key {
+        color: #8fe9fa;
+      }
+      .value {
+        color: #b8a5ff;
+      }
+      .comment {
+        color: #71809d;
+      }
+      .response-pill {
+        display: inline-flex;
+        gap: 7px;
+        align-items: center;
+        color: #9ef2bd;
+        font-size: 11px;
+        font-weight: 800;
+        margin-top: 15px;
+      }
+      section {
+        padding: 78px 0;
+      }
+      .section-head {
+        max-width: 680px;
+        margin-bottom: 34px;
+      }
+      .kicker {
+        color: var(--cyan);
+        font-size: 11px;
+        letter-spacing: 0.17em;
+        text-transform: uppercase;
+        font-weight: 800;
+      }
+      h2 {
+        margin: 10px 0 12px;
+        font-size: clamp(30px, 4vw, 43px);
+        line-height: 1.12;
+        letter-spacing: -0.045em;
+      }
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+      }
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+      }
+      .card {
+        padding: 24px;
+        border: 1px solid var(--line);
+        border-radius: var(--radius);
+        background: var(--panel);
+        transition:
+          transform 0.25s,
+          border-color 0.25s,
+          background 0.25s;
+      }
+      .card:hover {
+        transform: translateY(-5px);
+        border-color: rgba(124, 156, 255, 0.42);
+        background: rgba(25, 37, 66, 0.9);
+      }
+      .card-icon {
+        width: 44px;
+        height: 44px;
+        display: grid;
+        place-items: center;
+        border-radius: 13px;
+        background: rgba(124, 156, 255, 0.12);
+        color: #b8c6ff;
+        font-size: 21px;
+        margin-bottom: 17px;
+      }
+      h3 {
+        margin: 0 0 8px;
+        font-size: 17px;
+        letter-spacing: -0.02em;
+      }
+      .card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .capability-list {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 14px;
+      }
+      .capability {
+        display: flex;
+        gap: 15px;
+        padding: 20px;
+        border: 1px solid var(--line);
+        border-radius: 17px;
+        background: rgba(18, 27, 49, 0.5);
+      }
+      .capability .symbol {
+        flex: 0 0 35px;
+        height: 35px;
+        display: grid;
+        place-items: center;
+        border-radius: 10px;
+        background: rgba(103, 232, 249, 0.09);
+        color: var(--cyan);
+      }
+      .capability h3 {
+        font-size: 15px;
+      }
+      .capability p {
+        margin: 0 0 10px;
+        color: var(--muted);
+        font-size: 13px;
+      }
+      .endpoint-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 7px;
+        color: #aebeff;
+        font:
+          11px ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+        text-decoration: none;
+      }
+      .endpoint-link:hover {
+        color: var(--cyan);
+      }
+      .method-tag {
+        display: inline-block;
+        margin-right: 6px;
+        padding: 3px 6px;
+        border-radius: 5px;
+        background: rgba(134, 239, 172, 0.1);
+        color: #9bf3ba;
+        font-size: 10px;
+        font-weight: 900;
+      }
+      .how-grid {
+        display: grid;
+        grid-template-columns: 0.85fr 1.15fr;
+        gap: 26px;
+        align-items: start;
+      }
+      .steps {
+        display: grid;
+        gap: 12px;
+      }
+      .step {
+        display: flex;
+        gap: 15px;
+        padding: 17px;
+        border: 1px solid var(--line);
+        border-radius: 16px;
+        background: var(--panel);
+      }
+      .step-num {
+        flex: 0 0 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border-radius: 9px;
+        background: rgba(180, 154, 255, 0.15);
+        color: #d0c2ff;
+        font-size: 12px;
+        font-weight: 800;
+      }
+      .step h3 {
+        font-size: 14px;
+      }
+      .step p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 12px;
+      }
+      .code-panel {
+        min-width: 0;
+        border: 1px solid var(--line);
+        border-radius: 20px;
+        overflow: hidden;
+        background: #080e1c;
+      }
+      .code-panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 13px 17px;
+        background: rgba(255, 255, 255, 0.035);
+        border-bottom: 1px solid var(--line);
+        color: #a9b7d2;
+        font-size: 12px;
+      }
+      .copy-btn {
+        border: 1px solid var(--line);
+        background: transparent;
+        color: var(--text);
+        padding: 6px 9px;
+        border-radius: 7px;
+        cursor: pointer;
+        font-size: 11px;
+      }
+      .copy-btn:hover {
+        border-color: var(--blue);
+      }
+      .code-panel pre {
+        margin: 0;
+        padding: 20px;
+        overflow: auto;
+        color: #b9c8e5;
+        font:
+          12px/1.8 ui-monospace,
+          SFMono-Regular,
+          Menlo,
+          monospace;
+      }
+      .note {
+        padding: 15px 17px;
+        border-radius: 13px;
+        border: 1px solid rgba(103, 232, 249, 0.15);
+        background: rgba(103, 232, 249, 0.05);
+        color: #aebdd7;
+        font-size: 12px;
+        margin-top: 16px;
+      }
+      .cta {
+        text-align: center;
+        padding: 47px 25px;
+        border-radius: 26px;
+        border: 1px solid rgba(124, 156, 255, 0.24);
+        background:
+          radial-gradient(
+            ellipse at 50% 0%,
+            rgba(124, 156, 255, 0.16),
+            transparent 70%
+          ),
+          var(--panel);
+      }
+      .cta p {
+        max-width: 560px;
+        margin: 0 auto 22px;
+        color: var(--muted);
+      }
+      footer {
+        border-top: 1px solid var(--line);
+        padding: 27px 0;
+        color: #8e9bb5;
+        font-size: 12px;
+      }
+      .footer-inner {
+        display: flex;
+        justify-content: space-between;
+        gap: 20px;
+        align-items: center;
+      }
+      .footer-links {
+        display: flex;
+        gap: 17px;
+        flex-wrap: wrap;
+      }
+      .footer-links a {
+        color: #aab8d3;
+        text-decoration: none;
+      }
+      .footer-links a:hover {
+        color: white;
+      }
+      .reveal {
+        opacity: 1;
+        transform: none;
+        animation: fadeInUp 0.65s ease both;
+      }
+
+      .reveal.visible {
+        opacity: 1;
+        transform: translateY(0);
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(18px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+      @media (max-width: 850px) {
+        .hero-grid,
+        .how-grid {
+          grid-template-columns: 1fr;
+        }
+        .hero {
+          padding-top: 65px;
+        }
+        .api-window {
+          max-width: 600px;
+          transform: none;
+        }
+        .grid {
+          grid-template-columns: repeat(2, 1fr);
+        }
+        .nav-links {
+          gap: 14px;
+        }
+      }
+      @media (max-width: 600px) {
+        .container {
+          width: min(100% - 28px, 1120px);
+        }
+        nav {
+          min-height: 65px;
+        }
+        .nav-links a:not(.btn) {
+          display: none;
+        }
+        .nav-links .btn {
+          padding: 10px 12px;
+        }
+        .hero {
+          padding: 54px 0 42px;
+        }
+        h1 {
+          font-size: 43px;
+        }
+        .hero-copy {
+          font-size: 15px;
+        }
+        section {
+          padding: 55px 0;
+        }
+        .grid,
+        .capability-list {
+          grid-template-columns: 1fr;
+        }
+        .card {
+          padding: 21px;
+        }
+        .footer-inner {
+          align-items: flex-start;
+          flex-direction: column;
+        }
+        .api-window {
+          padding: 14px;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          scroll-behavior: auto !important;
+          animation: none !important;
+          transition: none !important;
+        }
+        .reveal {
+          opacity: 1;
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="nav-wrap">
+      <nav class="container" aria-label="Main navigation">
+        <a class="brand" href="#top">
+          <span class="brand-icon">✦</span>
+          <span>Notes API<small>Developer platform</small></span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#endpoints">Endpoints</a>
+          <a href="#how-to-use">How to use</a>
+          <a class="btn btn-secondary" href="/api-docs">API Docs ↗</a>
+        </div>
+      </nav>
+    </div>
+
+    <main id="top">
+      <header class="hero">
+        <div class="container hero-grid">
+          <div class="reveal">
+            <div class="eyebrow">
+              <span class="pulse"></span> REST API · JWT secured · AI-powered
+            </div>
+            <h1>
+              Notes, meet your<br /><span class="gradient-text"
+                >next superpower.</span
+              >
+            </h1>
+            <p class="hero-copy">
+              A developer-friendly Notes API built with Node.js, Express and
+              MongoDB. Manage notes securely, control access by role, and use
+              Gemini AI to turn rough thoughts into clearer, actionable content.
+            </p>
+            <div class="hero-actions">
+              <a class="btn btn-primary" href="/api-docs"
+                >Explore API documentation <span>↗</span></a
+              >
+              <a class="btn btn-secondary" href="#how-to-use">Get started ↓</a>
+            </div>
+            <p class="micro-note">
+              Built for learning, integration, and demonstrating real-world
+              backend patterns.
+            </p>
+          </div>
+          <div
+            class="api-window reveal"
+            aria-label="Example API request and response"
+          >
+            <div class="window-top">
+              <span class="dot"></span><span class="dot"></span
+              ><span class="dot"></span
+              ><span class="window-label">POST /api/ai/suggest</span>
+            </div>
+            <div class="request">
+              <span class="method">POST</span
+              ><span class="endpoint">/api/ai/suggest</span>
+            </div>
+            <pre class="code"><span class="comment">// Example response</span>
+{
+  <span class="key">"success"</span>: <span class="value">true</span>,
+  <span class="key">"suggestion"</span>: {
+    <span class="key">"category"</span>: <span class="value">"Learning"</span>,
+    <span class="key">"tags"</span>: [
+      <span class="value">"Node.js"</span>,
+      <span class="value">"Backend"</span>
+    ],
+    <span class="key">"improvedContent"</span>: <span class="value">"Explore Express..."</span>
+  }
+}</pre>
+            <div class="response-pill">● Example response preview</div>
+          </div>
+        </div>
+      </header>
+
+      <section id="features">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="kicker">Under the hood</span>
+            <h2>
+              Backend fundamentals.<br /><span class="gradient-text"
+                >Built into every request.</span
+              >
+            </h2>
+            <p>
+              Explore the features that make this more than basic CRUD
+              endpoints.
+            </p>
+          </div>
+          <div class="grid">
+            <article class="card reveal">
+              <div class="card-icon">🔐</div>
+              <h3>Authentication & authorization</h3>
+              <p>
+                Register, log in, and protect routes with JWT authentication and
+                role-based access for users and admins.
+              </p>
+            </article>
+            <article class="card reveal">
+              <div class="card-icon">🗂️</div>
+              <h3>Complete note management</h3>
+              <p>
+                Create, retrieve, update, delete, search, filter, and pin notes
+                with ownership checks.
+              </p>
+            </article>
+            <article class="card reveal">
+              <div class="card-icon">✨</div>
+              <h3>Gemini AI assistance</h3>
+              <p>
+                Generate note suggestions, summarize content, improve writing,
+                and extract action items.
+              </p>
+            </article>
+            <article class="card reveal">
+              <div class="card-icon">🛡️</div>
+              <h3>Security-minded design</h3>
+              <p>
+                Request validation, security headers, NoSQL injection
+                protection, and rate limiting.
+              </p>
+            </article>
+            <article class="card reveal">
+              <div class="card-icon">⚠️</div>
+              <h3>Consistent error handling</h3>
+              <p>
+                Centralized error middleware helps return clear, predictable API
+                errors.
+              </p>
+            </article>
+            <article class="card reveal">
+              <div class="card-icon">📘</div>
+              <h3>Interactive API docs</h3>
+              <p>
+                Explore endpoints, inspect request schemas, and try requests
+                from Swagger UI.
+              </p>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="endpoints">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="kicker">What can you do?</span>
+            <h2>
+              One API.
+              <span class="gradient-text">Multiple possibilities.</span>
+            </h2>
+            <p>
+              Choose a capability to jump into the relevant endpoint group in
+              the interactive documentation.
+            </p>
+          </div>
+          <div class="capability-list">
+            <article class="capability reveal">
+              <div class="symbol">01</div>
+              <div>
+                <h3>Create an account and sign in</h3>
+                <p>Register, authenticate, and log out of a user session.</p>
+                <a class="endpoint-link" href="/api-docs"
+                  >POST /api/auth/register · /login · /logout ↗</a
+                >
+              </div>
+            </article>
+            <article class="capability reveal">
+              <div class="symbol">02</div>
+              <div>
+                <h3>Manage your profile</h3>
+                <p>View, update, or delete your own account.</p>
+                <a class="endpoint-link" href="/api-docs"
+                  >GET · PUT · DELETE /api/user/me ↗</a
+                >
+              </div>
+            </article>
+            <article class="capability reveal">
+              <div class="symbol">03</div>
+              <div>
+                <h3>Organize your notes</h3>
+                <p>
+                  Create notes, search and filter your collection, and update or
+                  delete a note.
+                </p>
+                <a class="endpoint-link" href="/api-docs">/api/note ↗</a>
+              </div>
+            </article>
+            <article class="capability reveal">
+              <div class="symbol">04</div>
+              <div>
+                <h3>Pin important notes</h3>
+                <p>
+                  Toggle a note's pinned state so important information stands
+                  out.
+                </p>
+                <a class="endpoint-link" href="/api-docs"
+                  >PATCH /api/note/{id}/pin ↗</a
+                >
+              </div>
+            </article>
+            <article class="capability reveal">
+              <div class="symbol">05</div>
+              <div>
+                <h3>Ask AI to help with notes</h3>
+                <p>
+                  Suggest metadata, summarize a note, improve writing, or
+                  extract action items.
+                </p>
+                <a class="endpoint-link" href="/api-docs"
+                  >Explore /api/ai endpoints ↗</a
+                >
+              </div>
+            </article>
+            <article class="capability reveal">
+              <div class="symbol">06</div>
+              <div>
+                <h3>Administer the platform</h3>
+                <p>
+                  Use admin-protected endpoints to manage users and inspect
+                  notes.
+                </p>
+                <a class="endpoint-link" href="/api-docs">Admin endpoints ↗</a>
+              </div>
+            </article>
+          </div>
+        </div>
+      </section>
+
+      <section id="how-to-use">
+        <div class="container">
+          <div class="section-head reveal">
+            <span class="kicker">Quick start</span>
+            <h2>Make your first request.</h2>
+            <p>
+              Use Swagger UI or Postman to explore the API. Protected endpoints
+              require a valid login token or the authentication cookie supported
+              by the backend.
+            </p>
+          </div>
+          <div class="how-grid">
+            <div class="steps">
+              <article class="step reveal">
+                <span class="step-num">1</span>
+                <div>
+                  <h3>Open the API reference</h3>
+                  <p>
+                    Browse endpoint paths, request bodies, parameters, and
+                    response descriptions.
+                  </p>
+                </div>
+              </article>
+              <article class="step reveal">
+                <span class="step-num">2</span>
+                <div>
+                  <h3>Register or log in</h3>
+                  <p>
+                    Use the authentication endpoints to create an account and
+                    establish a session.
+                  </p>
+                </div>
+              </article>
+              <article class="step reveal">
+                <span class="step-num">3</span>
+                <div>
+                  <h3>Authorize protected requests</h3>
+                  <p>
+                    Use the JWT with Swagger's Authorize control if using Bearer
+                    authentication.
+                  </p>
+                </div>
+              </article>
+              <article class="step reveal">
+                <span class="step-num">4</span>
+                <div>
+                  <h3>Try notes and AI features</h3>
+                  <p>
+                    Create a note first, then use its ID for summarize, improve,
+                    and action-item endpoints.
+                  </p>
+                </div>
+              </article>
+            </div>
+            <div class="reveal">
+              <div class="code-panel">
+                <div class="code-panel-head">
+                  <span>Example · Create a note</span
+                  ><button class="copy-btn" id="copyRequest" type="button">
+                    Copy cURL
+                  </button>
+                </div>
+                <pre id="curlExample">
+curl -X POST "http://localhost:5000/api/note" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer YOUR_JWT_TOKEN" \
+  -d '{
+    "title": "Learn Express",
+    "content": "Practice routes and middleware",
+    "category": "Learning",
+    "tags": ["Node.js", "Backend"]
+  }'</pre
+                >
+              </div>
+              <div class="note">
+                <strong>Heads up:</strong> Replace
+                <code>YOUR_JWT_TOKEN</code> with your token. This example uses
+                Bearer authentication, which your middleware supports. The exact
+                response body and status code depend on your controller
+                implementation.
+              </div>
+              <div class="hero-actions">
+                <a class="btn btn-primary" href="/api-docs"
+                  >Open interactive Swagger docs ↗</a
+                >
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section>
+        <div class="container">
+          <div class="cta reveal">
+            <span class="kicker">Ready to explore?</span>
+            <h2>See every endpoint in action.</h2>
+            <p>
+              Open the API reference to explore the documented routes and test
+              requests against your running backend.
+            </p>
+            <a class="btn btn-primary" href="/api-docs">Launch Swagger UI ↗</a>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container footer-inner">
+        <div>
+          © <span id="year"></span> MERN Notes App API. Built for learning and
+          developer exploration.
+        </div>
+        <div class="footer-links">
+          <a href="/api-docs">API Documentation</a>
+          <a href="/health">Health Check</a>
+          <a href="#top">Back to top ↑</a>
+        </div>
+      </div>
+    </footer>
+    <!-- <script>
+      document.getElementById("year").textContent = new Date().getFullYear();
+
+      const observer = new IntersectionObserver(
+        (entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              entry.target.classList.add("visible");
+              observer.unobserve(entry.target);
+            }
+          });
+        },
+        { threshold: 0.12 },
+      );
+      document
+        .querySelectorAll(".reveal")
+        .forEach((el) => observer.observe(el));
+
+      const copyButton = document.getElementById("copyRequest");
+      copyButton.addEventListener("click", async () => {
+        const text = document.getElementById("curlExample").textContent;
+        try {
+          await navigator.clipboard.writeText(text);
+          copyButton.textContent = "Copied!";
+          setTimeout(() => (copyButton.textContent = "Copy cURL"), 1600);
+        } catch {
+          copyButton.textContent = "Select and copy";
+        }
+      });
+    </script> -->
+    <script src="/script.js" defer></script>
+  </body>
+</html>
