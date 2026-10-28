@@ -58,15 +58,38 @@ const deleteMe = asyncHandler(async (req, res) => {
   })
 })
 
-// ============= Get all user (admin) =============
+// ============= Get all users (admin) =============
 const getAllUsers = asyncHandler(async (req, res) => {
-  const users = await User.find().select("-password")
-  
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(
+    100,
+    Math.max(1, parseInt(req.query.limit, 10) || 10)
+  );
+
+  const skip = (page - 1) * limit;
+
+  const totalUsers = await User.countDocuments();
+
+  const users = await User.find()
+    .select("-password")
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
   res.status(200).json({
+    success: true,
     results: users.length,
-    users
-  })
-})
+    pagination: {
+      currentPage: page,
+      limit,
+      totalUsers,
+      totalPages: Math.ceil(totalUsers / limit),
+      hasNextPage: page < Math.ceil(totalUsers / limit),
+      hasPrevPage: page > 1,
+    },
+    users,
+  });
+});
 
 // ============= Admin updates any user =============
 const updateUser = asyncHandler(async (req, res) => {
