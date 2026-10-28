@@ -40,6 +40,7 @@ const createNote = asyncHandler(async (req, res) => {
 });
 //================ Get my note ==================
 //================ Get my notes with search and filters ==================
+
 const getMyNote = asyncHandler(async (req, res) => {
   const user = await User.findById(req.user._id);
 
@@ -51,6 +52,11 @@ const getMyNote = asyncHandler(async (req, res) => {
   }
 
   const { q, category, tag, isPinned } = req.query;
+
+  // Pagination
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
+  const skip = (page - 1) * limit;
 
   // Filter notes belonging to the logged-in user
   const filter = {
@@ -84,26 +90,60 @@ const getMyNote = asyncHandler(async (req, res) => {
     filter.isPinned = false;
   }
 
-  // Find notes and show newest first
-  const notes = await Note.find(filter).sort({ createdAt: -1 });
+  // Get total matching notes
+  const totalNotes = await Note.countDocuments(filter);
+
+  // Get notes for the requested page
+  const notes = await Note.find(filter)
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
 
   return res.status(200).json({
     success: true,
     results: notes.length,
+    pagination: {
+      currentPage: page,
+      limit,
+      totalNotes,
+      totalPages: Math.ceil(totalNotes / limit),
+      hasNextPage: page < Math.ceil(totalNotes / limit),
+      hasPrevPage: page > 1,
+    },
     notes,
   });
 });
+
 
 //================ Get All note ==================
-const getAllNotes = asyncHandler(async (req, res) => {
-  const notes = await Note.find();
 
-  res.status(200).json({
+const getAllNotes = asyncHandler(async (req, res) => {
+  const page = Math.max(1, parseInt(req.query.page, 10) || 1);
+  const limit = Math.min(100, Math.max(1, parseInt(req.query.limit, 10) || 10));
+  const skip = (page - 1) * limit;
+
+  const totalNotes = await Note.countDocuments();
+
+  const notes = await Note.find()
+    .sort({ createdAt: -1 })
+    .skip(skip)
+    .limit(limit);
+
+  return res.status(200).json({
     success: true,
     results: notes.length,
+    pagination: {
+      currentPage: page,
+      limit,
+      totalNotes,
+      totalPages: Math.ceil(totalNotes / limit),
+      hasNextPage: page < Math.ceil(totalNotes / limit),
+      hasPrevPage: page > 1,
+    },
     notes,
   });
 });
+
 //================ Update note ==================
 // For both logged-In User
 const updateNote = asyncHandler(async (req, res) => {
