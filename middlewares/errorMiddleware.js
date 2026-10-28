@@ -5,6 +5,10 @@ const errorMiddleware = (err, req, res, next) => {
       ? "Internal Server Error"
       : err.message || "Something went wrong";
 
+  if (process.env.NODE_ENV === "development") {
+    console.error("Actual server error:", err);
+  }
+
   // MongoDB duplicate key error
   if (err.code === 11000) {
     statusCode = 409;
