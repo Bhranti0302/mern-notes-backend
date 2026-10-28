@@ -29,7 +29,10 @@ app.use(express.json());
 app.use(mongoSanitize());
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: [
+      "http://localhost:5173",
+      "https://mern-notes-backend-nxy7.onrender.com",
+    ],
     credentials: true,
   }),
 );
