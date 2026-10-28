@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cookieParser = require("cookie-parser");
 const cors = require("cors");
 const helmet = require("helmet");
@@ -36,11 +37,15 @@ app.use(cookieParser());
 app.use(helmet());
 
 // Test Routes
+// app.get("/", (req, res) => {
+//   res.status(200).json({
+//     success: true,
+//     message: "Note App is running",
+//   });
+// });
+
 app.get("/", (req, res) => {
-  res.status(200).json({
-    success: true,
-    message: "Note App is running",
-  });
+  res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
 // Routes
@@ -50,6 +55,14 @@ app.use("/api/note", noteRoutes);
 app.use("/api/ai", aiRoutes);
 
 app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+
+app.get("/health", (req, res) => {
+  res.status(200).json({
+    success: true,
+    status: "OK",
+    message: "Notes App API is running",
+  });
+});
 
 // Handle unknown routes
 app.use((req, res, next) => {
