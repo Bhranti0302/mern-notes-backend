@@ -6,8 +6,6 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GEMINI_API_KEY,
 });
 
-console.log("Gemini API key loaded:", Boolean(process.env.GEMINI_API_KEY));
-
 const MODEL = "gemini-3.5-flash-lite";
 
 const generateAIText = async (prompt) => {
